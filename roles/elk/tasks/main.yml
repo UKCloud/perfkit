@@ -31,6 +31,13 @@
     dest: /root/
     setype: svirt_sandbox_file_t
   become: yes
+- name: configure kernal parameters for docker
+  sysctl:
+    name: vm.max_map_count
+    value: 262144
+    state: present
+    reload: yes
+  become: yes
 - name: Create containers for elk and nginx
   shell: cd /root/ ; docker-compose up -d
   become: yes
