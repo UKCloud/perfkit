@@ -1,0 +1,27 @@
+<source>
+  @type tail
+  path /opt/results/*
+  tag perfkit
+  format json
+  time_format %F %T.%L
+</source>
+<match perfkit>
+  type add
+  <pair>
+    service perfkit
+    hostname "#{Socket.gethostname}"
+  </pair>
+</match>
+
+<match *.**>
+  type copy
+  <store>
+    type elasticsearch
+    host "{{ELASTICSEARCH_ENDPOINT}}"
+    port 9200
+    include_tag_key true
+    tag_key @log_name
+    logstash_format true
+    flush_interval 10s
+  </store>
+</match>

@@ -7,6 +7,28 @@
     - python-dev 
     - jq 
     - git
+    - python-software-properties
+  become: yes
+- name: Install fluentd
+  shell: curl -L https://toolbelt.treasuredata.com/sh/install-ubuntu-trusty-td-agent2.sh | sh
+  args:
+    creates: .installed_fluentd
+  become: yes
+- name: Install fluent plugins
+  shell: "{{ item }}"
+  with_items:
+    - /opt/td-agent/usr/sbin/td-agent-gem fluent-plugin-elasticsearch
+    - /opt/td-agent/usr/sbin/td-agent-gem fluent-plugin-add
+  become: yes
+- name: Setup fluentd config
+  template:
+    src: templates/td-agent.j2
+    dest: /etc/td-agent/td-agent.conf
+- name: Enable fluentd
+  services:
+    name: td-agent
+    state: restarted
+    enabled: yes
   become: yes
 - name: Setup directories
   file:
