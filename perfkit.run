@@ -1,0 +1,51 @@
+SERVICE_PROVIDER="UKCloud"
+CLOUD="OpenStack"
+IMAGE="Ubuntu 14.04 amd64"
+OPENSTACK_NETWORK="perfkit_net"
+VOLUME_SIZE="20"
+FLAVOR="t1.nano"
+ZONE="0000c-1,0000c-2"
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+NUM_VMS=1
+DATE=$(date +%d%m%Y)
+
+source /home/ubuntu/openstack_rc.sh
+cd /opt/PerfKitBenchmarker/
+echo "Running all benchmarks in parallel"
+for benchmark in $@; do
+    case $benchmark in
+    oldisim )
+       EXTRA_OPTIONS="--oldisim_num_leaves=$NUM_VMS"
+    ;;
+    aerospike )
+       EXTRA_OPTIONS="--aerospike_storage_type=disk --num_vms=$NUM_VMS"
+    ;;
+    * )
+       EXTRA_OPTIONS="--num_vms=$NUM_VMS"
+    ;;
+    esac
+    echo "./pkb.py --benchmarks=\"$benchmark\" --json_path=\"/opt/results/$SERVICE_PROVIDER.$FLAVOR.$benchmark.$DATE.results.json\" --cloud=\"$CLOUD\" --openstack_network=\"$OPENSTACK_NETWORK\" --image=\"$IMAGE\" --machine_type=\"$FLAVOR\" --zones=\"$ZONE\" --metadata=\"cloud_provider:$SERVICE_PROVIDER\" --openstack_volume_size=$VOLUME_SIZE --data_disk_size=$VOLUME_SIZE --ip_addresses=INTERNAL $EXTRA_OPTIONS" >> /opt/logs/cmdDetails.log
+    sleep 60
+    ./pkb.py --benchmarks="$benchmark" --json_path="/opt/results/$SERVICE_PROVIDER.$FLAVOR.$benchmark.$DATE.results.json" --cloud="$CLOUD" --openstack_network="$OPENSTACK_NETWORK" --image="$IMAGE" --machine_type="$FLAVOR" --zones="$ZONE" --metadata="cloud_provider:$SERVICE_PROVIDER" --openstack_volume_size=$VOLUME_SIZE --data_disk_size=$VOLUME_SIZE --ip_addresses=INTERNAL $EXTRA_OPTIONS > /opt/logs/$benchmark.log 2>&1 &
+    echo "Starting $benchmark"
+done
+
+while ps aux | grep pkb.py | grep -v grep > /dev/null ;do
+    echo "Waiting for benchmarks to finish..."
+    sleep 60
+done
+
+echo "Benchmark runs completed"
+echo "Deleting any perfkit key-pairs left over after run"
+KEYPAIR_NAMES=$(nova keypair-list  | grep perfkit_key | cut -f2 -d' ' )
+for KEYPAIR_NAME in $KEYPAIR_NAMES; do
+    nova keypair-delete $KEYPAIR_NAME
+done
+echo "Deleted all perfkit key-pairs"
+echo "Deleting any perfkit volumes left over after run"
+VOLUMES=$(cinder list | grep perfkit | cut -f2 -d' ')
+for VOLUME in $VOLUMES; do
+    cinder delete $VOLUME
+done
+echo "Deleted all perfkit volumes"
+echo "Run completed."
