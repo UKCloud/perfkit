@@ -17,15 +17,16 @@
 - name: Install fluent plugins
   shell: "{{ item }}"
   with_items:
-    - /opt/td-agent/usr/sbin/td-agent-gem fluent-plugin-elasticsearch
-    - /opt/td-agent/usr/sbin/td-agent-gem fluent-plugin-add
+    - '/opt/td-agent/usr/sbin/td-agent-gem install fluent-plugin-elasticsearch'
+    - '/opt/td-agent/usr/sbin/td-agent-gem install fluent-plugin-add'
   become: yes
 - name: Setup fluentd config
   template:
     src: templates/td-agent.j2
     dest: /etc/td-agent/td-agent.conf
+  become: yes
 - name: Enable fluentd
-  services:
+  service:
     name: td-agent
     state: restarted
     enabled: yes
