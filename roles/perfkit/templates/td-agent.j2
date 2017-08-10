@@ -3,6 +3,8 @@
   path /opt/results/*
   tag perfkit
   format json
+  pos_file /var/log/td-agent/access.log.pos
+  read_from_head true
   time_format %F %T.%L
 </source>
 <match perfkit>
