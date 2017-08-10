@@ -1,0 +1,4 @@
+- hosts: workload_launcher
+  roles:
+    - common
+    - perfkit
