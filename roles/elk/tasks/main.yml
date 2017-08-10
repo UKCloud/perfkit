@@ -1,0 +1,35 @@
+- name: install packages
+  package:
+    name: "{{ item }}"
+  with_items:
+    - docker
+    - epel-release
+    - python-pip
+  become: yes
+- name: install pip packages
+  pip:
+    name: "{{ item }}"
+    state: latest
+  with_items:
+    - pip
+    - docker-compose  
+  become: yes
+- name: enable docker
+  systemd:
+    name: docker
+    enabled: yes
+    state: started
+  become: yes
+- name: copy docker compose files
+  copy:
+    src: files/docker-compose.yml
+    dest: /root/docker-compose.yml
+  become: yes
+- name: copy nginx config
+  copy:
+    src: files/nginx
+    dest: /root/nginx
+  become: yes
+- name: Create containers for elk and nginx
+  shell: cd /root/ ; docker-compose up -d
+  become: yes
