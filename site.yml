@@ -1,2 +1,2 @@
 - include: workload_launcher.yml
-- include: site.yml
+- include: elk.yml

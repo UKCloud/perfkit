@@ -1,0 +1,63 @@
+- name: install packages
+  apt: 
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - python-pip 
+    - python-dev 
+    - jq 
+    - git
+  become: yes
+- name: Setup directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: ubuntu
+    group: ubuntu
+  with_items:
+    - /opt/results
+    - /opt/logs
+  become: yes
+- name: checkout perfkit
+  git:
+    repo: 'https://github.com/GoogleCloudPlatform/PerfKitBenchmarker.git'
+    dest: /opt/PerfKitBenchmarker
+    force: yes
+  become: yes
+- name: Update perfkit permissions
+  file:
+    path: /opt/PerfKitBenchmarker
+    owner: ubuntu
+    group: ubuntu
+    recurse: yes
+  become: true
+- name: Upgrade pip
+  pip:
+    name: pip
+    state: latest
+  become: true
+- name: patch openstack requirements until our pull request is accepeted https://github.com/GoogleCloudPlatform/PerfKitBenchmarker/pull/1467
+  lineinfile:
+    path: /opt/PerfKitBenchmarker/perfkitbenchmarker/providers/openstack/requirements.txt
+    regexp: "{{ item.old }}"
+    line: "{{ item.new }}"
+    backup: yes
+  with_items:
+    - { old: 'openstacksdk==0.9.10', new: 'openstacksdk>=0.9.10' }
+    - { old: 'python-openstackclient==3.6.0', new: 'python-openstackclient>=3.6.0' }
+- name: Install requirements via pip
+  pip:
+    requirements: "{{ item }}"
+    state: latest
+    chdir: /opt/PerfKitBenchmarker
+  with_items:
+    - requirements.txt
+    - perfkitbenchmarker/providers/openstack/requirements.txt
+    - perfkitbenchmarker/providers/aws/requirements.txt
+  become: true
+- name: Installing missing dep
+  pip:
+    name: babel
+    state: present
+    version: 2.3.4
+  become: true
