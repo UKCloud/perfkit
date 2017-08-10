@@ -28,7 +28,8 @@
 - name: copy nginx config
   copy:
     src: files/nginx
-    dest: /root/nginx
+    dest: /root/
+    setype: svirt_sandbox_file_t
   become: yes
 - name: Create containers for elk and nginx
   shell: cd /root/ ; docker-compose up -d
