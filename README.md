@@ -105,5 +105,5 @@ ansible-playbook -i inventories/production/hosts workload-launcher.yml
 To run the benchmarks run:
 
 ```
-./perfkit.run <Azure|AWS-US|AWS-UK|OpenStack>
+./perfkit.run <Azure|AWS-US|AWS-UK|UKCloud-OpenStack>
 ```
