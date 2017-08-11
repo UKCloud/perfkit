@@ -2,8 +2,8 @@
 PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 if [[ "$1" == "UKCloud-OpenStack" ]]; then
   SERVICE_PROVIDER="UKCloud"
-  CLOUD="OpenStack"
   IMAGE="Ubuntu 14.04 amd64"
+  CLOUD="OpenStack"
   OPENSTACK_NETWORK="perfkit_net"
   VOLUME_SIZE="20"
   FLAVOR="t1.tiny"
@@ -47,11 +47,11 @@ for benchmark in ${benchmarks[@]}; do
        EXTRA_OPTIONS="--num_vms=$NUM_VMS"
     ;;
     esac
-     if [[ "$1" == "UKCloud-OpenStack" ]]; then
-       EXTRA_OPTIONS="$EXTRA_OPTIONS --openstack_volume_size=$VOLUME_SIZE --openstack_network=\"$OPENSTACK_NETWORK\" --ip_addresses=INTERNAL --image=\"$IMAGE\"" 
+    if [[ "$1" == "UKCloud-OpenStack" ]]; then
+       ./pkb.py --benchmarks="$benchmark" --json_path="/opt/results/$SERVICE_PROVIDER.$FLAVOR.$benchmark.$DATE.results.json" --cloud="$CLOUD" --machine_type="$FLAVOR" --zones="$ZONE" --metadata="cloud_provider:$SERVICE_PROVIDER" --openstack_volume_size=$VOLUME_SIZE --data_disk_size=$VOLUME_SIZE --image="Ubuntu 14.04 amd64" --openstack_volume_size="$VOLUME_SIZE" --openstack_network="$OPENSTACK_NETWORK" --ip_addresses="INTERNAL" $EXTRA_OPTIONS > /opt/logs/$benchmark.log 2>&1 &
+    else
+       ./pkb.py --benchmarks="$benchmark" --json_path="/opt/results/$SERVICE_PROVIDER.$FLAVOR.$benchmark.$DATE.results.json" --cloud="$CLOUD" --machine_type="$FLAVOR" --zones="$ZONE" --metadata="cloud_provider:$SERVICE_PROVIDER" --openstack_volume_size="$VOLUME_SIZE" --data_disk_size="$VOLUME_SIZE" $EXTRA_OPTIONS > /opt/logs/$benchmark.log 2>&1 &
     fi
-    echo "./pkb.py --benchmarks=\"$benchmark\" --json_path=\"/opt/results/$SERVICE_PROVIDER.$FLAVOR.$benchmark.$DATE.results.json\" --cloud=\"$CLOUD\" --machine_type=\"$FLAVOR\" --zones=\"$ZONE\" --metadata=\"cloud_provider:$SERVICE_PROVIDER\" --openstack_volume_size=$VOLUME_SIZE --data_disk_size=$VOLUME_SIZE $EXTRA_OPTIONS" >> /opt/logs/cmdDetails.log
-    ./pkb.py --benchmarks="$benchmark" --json_path="/opt/results/$SERVICE_PROVIDER.$FLAVOR.$benchmark.$DATE.results.json" --cloud="$CLOUD" --machine_type="$FLAVOR" --zones="$ZONE" --metadata="cloud_provider:$SERVICE_PROVIDER" --openstack_volume_size=$VOLUME_SIZE --data_disk_size=$VOLUME_SIZE $EXTRA_OPTIONS > /opt/logs/$benchmark.log 2>&1 &
     sleep 60
     echo "Starting $benchmark"
 done
