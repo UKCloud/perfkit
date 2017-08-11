@@ -30,8 +30,7 @@ fi
 NUM_VMS=20
 DATE=$(date +%d%m%Y)
 
-#benchmarks=( iperf cluster_boot copy_throughput block_storage_workload sysbench_oltp mongodb_ycsb hpcc sysbench_oltp unixbench)
-benchmarks=( cluster_boot copy_throughput sysbench_oltp)
+benchmarks=( iperf cluster_boot copy_throughput block_storage_workload sysbench_oltp mongodb_ycsb hpcc sysbench_oltp unixbench ping)
 source /home/ubuntu/openstack_rc.sh
 cd /opt/PerfKitBenchmarker/
 
