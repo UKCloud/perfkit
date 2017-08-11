@@ -8,6 +8,7 @@
     - jq 
     - git
     - python-software-properties
+    - npm
   become: yes
 - name: Install fluentd
   shell: curl -L https://toolbelt.treasuredata.com/sh/install-ubuntu-trusty-td-agent2.sh | sh
@@ -84,3 +85,11 @@
     state: present
     version: 2.3.4
   become: true
+- name: Install Azure client
+  shell: npm install azure-cli@0.10.4 -g 
+  become: yes
+- name: create nodejs symlink for Azure
+  file:
+    src: /usr/bin/nodejs
+    dest: /usr/bin/node
+    state: link

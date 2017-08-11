@@ -1,18 +1,41 @@
-SERVICE_PROVIDER="UKCloud"
-CLOUD="OpenStack"
-IMAGE="Ubuntu 14.04 amd64"
-OPENSTACK_NETWORK="perfkit_net"
-VOLUME_SIZE="20"
-FLAVOR="t1.nano"
-ZONE="0000c-1,0000c-2"
+#!/bin/bash
 PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-NUM_VMS=1
+if [[ "$1" == "UKCloud" ]]; then
+  SERVICE_PROVIDER="UKCloud"
+  CLOUD="OpenStack"
+  IMAGE="Ubuntu 14.04 amd64"
+  OPENSTACK_NETWORK="perfkit_net"
+  VOLUME_SIZE="20"
+  FLAVOR="t1.tiny"
+  ZONE="0000c-1"
+elif [[ "$1" == "AWS-UK" ]]; then
+  SERVICE_PROVIDER="AWS"
+  CLOUD="AWS"
+  VOLUME_SIZE="20"
+  FLAVOR="t2.micro"
+  ZONE="eu-west-2"
+elif [[ "$1" == "AWS-US" ]]; then
+  SERVICE_PROVIDER="AWS"
+  CLOUD="AWS"
+  VOLUME_SIZE="20"
+  FLAVOR="t2.micro"
+  ZONE="us-east-1"
+elif [[ "$1" == "Azure" ]]; then
+  SERVICE_PROVIDER="Azure"
+  CLOUD="Azure"
+  VOLUME_SIZE="20"
+  FLAVOR="Standard_A1"
+  ZONE="uksouth"
+fi
+NUM_VMS=20
 DATE=$(date +%d%m%Y)
 
+benchmarks=( cluster_boot copy_throughput block_storage_workload sysbench_oltp)
 source /home/ubuntu/openstack_rc.sh
 cd /opt/PerfKitBenchmarker/
+
 echo "Running all benchmarks in parallel"
-for benchmark in $@; do
+for benchmark in ${benchmarks[@]}; do
     case $benchmark in
     oldisim )
        EXTRA_OPTIONS="--oldisim_num_leaves=$NUM_VMS"
@@ -24,9 +47,12 @@ for benchmark in $@; do
        EXTRA_OPTIONS="--num_vms=$NUM_VMS"
     ;;
     esac
-    echo "./pkb.py --benchmarks=\"$benchmark\" --json_path=\"/opt/results/$SERVICE_PROVIDER.$FLAVOR.$benchmark.$DATE.results.json\" --cloud=\"$CLOUD\" --openstack_network=\"$OPENSTACK_NETWORK\" --image=\"$IMAGE\" --machine_type=\"$FLAVOR\" --zones=\"$ZONE\" --metadata=\"cloud_provider:$SERVICE_PROVIDER\" --openstack_volume_size=$VOLUME_SIZE --data_disk_size=$VOLUME_SIZE --ip_addresses=INTERNAL $EXTRA_OPTIONS" >> /opt/logs/cmdDetails.log
+     if [[ "$1" == "UKCloud" ]]; then
+       EXTRA_OPTIONS="$EXTRA_OPTIONS --openstack_volume_size=$VOLUME_SIZE --openstack_network=\"$OPENSTACK_NETWORK\" --ip_addresses=INTERNAL --image=\"$IMAGE\"" 
+    fi
+    echo "./pkb.py --benchmarks=\"$benchmark\" --json_path=\"/opt/results/$SERVICE_PROVIDER.$FLAVOR.$benchmark.$DATE.results.json\" --cloud=\"$CLOUD\" --machine_type=\"$FLAVOR\" --zones=\"$ZONE\" --metadata=\"cloud_provider:$SERVICE_PROVIDER\" --openstack_volume_size=$VOLUME_SIZE --data_disk_size=$VOLUME_SIZE $EXTRA_OPTIONS" >> /opt/logs/cmdDetails.log
+    ./pkb.py --benchmarks="$benchmark" --json_path="/opt/results/$SERVICE_PROVIDER.$FLAVOR.$benchmark.$DATE.results.json" --cloud="$CLOUD" --machine_type="$FLAVOR" --zones="$ZONE" --metadata="cloud_provider:$SERVICE_PROVIDER" --openstack_volume_size=$VOLUME_SIZE --data_disk_size=$VOLUME_SIZE $EXTRA_OPTIONS > /opt/logs/$benchmark.log 2>&1 &
     sleep 60
-    ./pkb.py --benchmarks="$benchmark" --json_path="/opt/results/$SERVICE_PROVIDER.$FLAVOR.$benchmark.$DATE.results.json" --cloud="$CLOUD" --openstack_network="$OPENSTACK_NETWORK" --image="$IMAGE" --machine_type="$FLAVOR" --zones="$ZONE" --metadata="cloud_provider:$SERVICE_PROVIDER" --openstack_volume_size=$VOLUME_SIZE --data_disk_size=$VOLUME_SIZE --ip_addresses=INTERNAL $EXTRA_OPTIONS > /opt/logs/$benchmark.log 2>&1 &
     echo "Starting $benchmark"
 done
 
@@ -35,17 +61,4 @@ while ps aux | grep pkb.py | grep -v grep > /dev/null ;do
     sleep 60
 done
 
-echo "Benchmark runs completed"
-echo "Deleting any perfkit key-pairs left over after run"
-KEYPAIR_NAMES=$(nova keypair-list  | grep perfkit_key | cut -f2 -d' ' )
-for KEYPAIR_NAME in $KEYPAIR_NAMES; do
-    nova keypair-delete $KEYPAIR_NAME
-done
-echo "Deleted all perfkit key-pairs"
-echo "Deleting any perfkit volumes left over after run"
-VOLUMES=$(cinder list | grep perfkit | cut -f2 -d' ')
-for VOLUME in $VOLUMES; do
-    cinder delete $VOLUME
-done
-echo "Deleted all perfkit volumes"
 echo "Run completed."
