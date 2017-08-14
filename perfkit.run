@@ -30,7 +30,8 @@ fi
 NUM_VMS=20
 DATE=$(date +%d%m%Y)
 
-benchmarks=( iperf cluster_boot copy_throughput block_storage_workload sysbench_oltp mongodb_ycsb hpcc sysbench_oltp unixbench ping)
+storage_tiers=(TIER1 TIER2)
+benchmarks=( iperf cluster_boot copy_throughput block_storage_workload mongodb_ycsb hpcc sysbench_oltp unixbench ping)
 source /home/ubuntu/openstack_rc.sh
 cd /opt/PerfKitBenchmarker/
 
@@ -48,7 +49,19 @@ for benchmark in ${benchmarks[@]}; do
     ;;
     esac
     if [[ "$1" == "UKCloud-OpenStack" ]]; then
-       ./pkb.py --benchmarks="$benchmark" --json_path="/opt/results/$SERVICE_PROVIDER.$FLAVOR.$benchmark.$DATE.results.json" --cloud="$CLOUD" --machine_type="$FLAVOR" --zones="$ZONE" --metadata="cloud_provider:$SERVICE_PROVIDER" --openstack_volume_size=$VOLUME_SIZE --data_disk_size=$VOLUME_SIZE --image="Ubuntu 14.04 amd64" --openstack_volume_size="$VOLUME_SIZE" --openstack_network="$OPENSTACK_NETWORK" --ip_addresses="INTERNAL" $EXTRA_OPTIONS > /opt/logs/$benchmark.log 2>&1 &
+       if [ $benchmark == "block_storage_workload" ]; then
+         for workload in logging database streaming; do
+           for type in ${storage_tiers[@]}; do
+             ./pkb.py --benchmarks="$benchmark" --workload_mode=$workload --json_path="/opt/results/$SERVICE_PROVIDER.$FLAVOR.$benchmark.--workload_mode=$workload.$DATE.results.json" --cloud="$CLOUD" --machine_type="$FLAVOR" --zones="$ZONE" --metadata="cloud_provider:$SERVICE_PROVIDER" --openstack_volume_size=$VOLUME_SIZE --data_disk_size=$VOLUME_SIZE --image="Ubuntu 14.04 amd64" --openstack_volume_size="$VOLUME_SIZE" --openstack_network="$OPENSTACK_NETWORK" --ip_addresses="INTERNAL" --openstack_volume_type=$type --metadata="storage_type=$type" $EXTRA_OPTIONS > /opt/logs/$benchmark.log 2>&1 &
+           done
+         done
+       elif [ $benchmark == "copy_throughput" ]; then
+         for workload in cp dd scp; do
+           ./pkb.py --benchmarks="$benchmark" --workload_mode=$workload --json_path="/opt/results/$SERVICE_PROVIDER.$FLAVOR.$benchmark.--workload_mode=$workload.$DATE.results.json" --cloud="$CLOUD" --machine_type="$FLAVOR" --zones="$ZONE" --metadata="cloud_provider:$SERVICE_PROVIDER" --openstack_volume_size=$VOLUME_SIZE --data_disk_size=$VOLUME_SIZE --image="Ubuntu 14.04 amd64" --openstack_volume_size="$VOLUME_SIZE" --openstack_network="$OPENSTACK_NETWORK" --ip_addresses="INTERNAL" $EXTRA_OPTIONS > /opt/logs/$benchmark.log 2>&1 &
+         done
+       else
+         ./pkb.py --benchmarks="$benchmark" --json_path="/opt/results/$SERVICE_PROVIDER.$FLAVOR.$benchmark.$DATE.results.json" --cloud="$CLOUD" --machine_type="$FLAVOR" --zones="$ZONE" --metadata="cloud_provider:$SERVICE_PROVIDER" --openstack_volume_size=$VOLUME_SIZE --data_disk_size=$VOLUME_SIZE --image="Ubuntu 14.04 amd64" --openstack_volume_size="$VOLUME_SIZE" --openstack_network="$OPENSTACK_NETWORK" --ip_addresses="INTERNAL" $EXTRA_OPTIONS > /opt/logs/$benchmark.log 2>&1 &
+       fi
     else
        ./pkb.py --benchmarks="$benchmark" --json_path="/opt/results/$SERVICE_PROVIDER.$FLAVOR.$benchmark.$DATE.results.json" --cloud="$CLOUD" --machine_type="$FLAVOR" --zones="$ZONE" --metadata="cloud_provider:$SERVICE_PROVIDER" --openstack_volume_size="$VOLUME_SIZE" --data_disk_size="$VOLUME_SIZE" $EXTRA_OPTIONS > /opt/logs/$benchmark.log 2>&1 &
     fi
