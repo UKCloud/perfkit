@@ -20,6 +20,7 @@
   with_items:
     - '/opt/td-agent/usr/sbin/td-agent-gem install fluent-plugin-elasticsearch'
     - '/opt/td-agent/usr/sbin/td-agent-gem install fluent-plugin-add'
+    - '/opt/td-agent/usr/sbin/td-agent-gem install fluent-plugin-filter_typecast'
   become: yes
 - name: Setup fluentd config
   template:

@@ -14,6 +14,10 @@
     hostname "#{Socket.gethostname}"
   </pair>
 </match>
+<filter *.**>
+  type typecast
+  types timestamp:integer
+</filter>
 
 <match *.**>
   type copy
@@ -25,5 +29,8 @@
     tag_key @log_name
     logstash_format true
     flush_interval 10s
+    template_name perfkit
+    template_file /home/ubuntu/perfkit/roles/perfkit/templates/elasticsearch_template_perfkit.json
+    logstash_prefix perfkit
   </store>
 </match>
