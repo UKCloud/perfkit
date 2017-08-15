@@ -95,3 +95,9 @@
     dest: /usr/bin/node
     state: link
   become: yes
+- name: Setup cronjob to run benchmarks
+  cron:
+    name: "Run benchmarks"
+    minute: "0"
+    hour: "5,22"
+    job: "/home/ubuntu/perfkit/perfkit.run UKCloud-OpenStack"
