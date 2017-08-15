@@ -62,8 +62,8 @@ DATE=$(date +%d%m%Y)
 # ALLROUND_BENCHMARK
 # unixbench - all round benchmark
 
-#BENCHMARKS=( aerospike cassandra_stress mongodb_ycsb sysbench_oltp fio block_storage_workload silo cluster_boot copy_throughput iperf ping netperf hpcc mesh_network oldisim redis unixbench )
-BENCHMARKS=( cassandra_stress )
+BENCHMARKS=( aerospike cassandra_stress mongodb_ycsb sysbench_oltp fio block_storage_workload silo cluster_boot copy_throughput iperf ping netperf hpcc mesh_network oldisim redis unixbench )
+#BENCHMARKS=( cassandra_stress )
 
 PATH=/usr/local/bin:$PATH
 
