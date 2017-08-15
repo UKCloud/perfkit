@@ -31,6 +31,9 @@
     dest: /root/
     setype: svirt_sandbox_file_t
   become: yes
+- name: create self-signed SSL cert
+  command: openssl req -new -nodes -x509 -subj "/C=GB/ST=Somerset/L=Wells/O=IT/CN=perfkit.ukcloud.com" -days 3650 -keyout /root/nginx/conf.d/server.key -out /root/nginx/conf.d/server.crt -extensions v3_ca 
+  become: yes
 - name: configure kernal parameters for docker
   sysctl:
     name: vm.max_map_count
