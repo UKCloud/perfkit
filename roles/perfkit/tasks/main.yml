@@ -94,3 +94,4 @@
     src: /usr/bin/nodejs
     dest: /usr/bin/node
     state: link
+  become: yes
