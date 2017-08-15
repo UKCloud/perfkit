@@ -105,7 +105,6 @@ function runBenchmarks() {
               $cmd --image="Ubuntu 14.04 amd64" > /opt/logs/$benchmark.log 2>&1
             done
           else
-            echo HIT
             cmd="$(baseCmd $benchmark) --openstack_volume_type=$tier --metadata="cloud_provider:$CLOUD,region:$OS_REGION_NAME,storage_type:$tier" --json_path="/opt/results/$SERVICE_PROVIDER.$FLAVOR.$benchmark.$DATE.results.json""
             echo $cmd --image="Ubuntu 14.04 amd64" >> /opt/logs/perfkit.log
             $cmd --image="Ubuntu 14.04 amd64" --metadata="cloud_provider:$CLOUD,region:$OS_REGION_NAME" > /opt/logs/$benchmark.log 2>&1
