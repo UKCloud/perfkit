@@ -56,10 +56,13 @@
     group: ubuntu
     recurse: yes
   become: true
-- name: Upgrade pip
+- name: Upgrade pip and install pip packages
   pip:
-    name: pip
+    name: "{{ item }}"
     state: latest
+  with_items:
+    - pip
+    - azure-cli
   become: true
 - name: patch openstack requirements until our pull request is accepeted https://github.com/GoogleCloudPlatform/PerfKitBenchmarker/pull/1467
   lineinfile:
