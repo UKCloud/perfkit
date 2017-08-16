@@ -75,7 +75,7 @@ function baseCmd() {
   if [[ "$provider" == "UKCloud-OpenStack" ]]; then
     cmd='./pkb.py --benchmarks='$benchmark' --cloud=OpenStack --openstack_network='$OPENSTACK_NETWORK' --machine_type='$FLAVOR' --zones='$ZONE' --openstack_volume_size='$VOLUME_SIZE' --data_disk_size='$VOLUME_SIZE' --num_vms='$NUM_VMS' --aerospike_storage_type=disk --ip_addresses=INTERNAL'
   else
-    cmd="./pkb.py --benchmarks="$benchmark" --cloud="$CLOUD" --machine_type="$FLAVOR" --zones="$ZONE" --metadata="cloud_provider:$SERVICE_PROVIDER" --data_disk_size="$VOLUME_SIZE" --aerospike_storage_type=disk --num_vms='$NUM_VMS'" 
+    cmd="./pkb.py --benchmarks="$benchmark" --cloud="$CLOUD" --machine_type="$FLAVOR" --zones="$ZONE" --metadata="cloud_provider:$SERVICE_PROVIDER" --data_disk_size="$VOLUME_SIZE" --aerospike_storage_type=disk --num_vms=$NUM_VMS" 
   fi
   echo $cmd
 }
