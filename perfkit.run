@@ -62,7 +62,7 @@ DATE=$(date +%d%m%Y)
 # ALLROUND_BENCHMARK
 # unixbench - all round benchmark
 
-BENCHMARKS=( aerospike cassandra_stress mongodb_ycsb sysbench_oltp fio block_storage_workload silo cluster_boot copy_throughput iperf ping netperf hpcc mesh_network oldisim redis unixbench )
+BENCHMARKS=( aerospike mongodb_ycsb sysbench_oltp fio block_storage_workload silo cluster_boot copy_throughput iperf ping netperf hpcc mesh_network oldisim redis unixbench )
 
 PATH=/usr/local/bin:$PATH
 
@@ -75,7 +75,7 @@ function baseCmd() {
   if [[ "$provider" == "UKCloud-OpenStack" ]]; then
     cmd='./pkb.py --benchmarks='$benchmark' --cloud=OpenStack --openstack_network='$OPENSTACK_NETWORK' --machine_type='$FLAVOR' --zones='$ZONE' --openstack_volume_size='$VOLUME_SIZE' --data_disk_size='$VOLUME_SIZE' --num_vms='$NUM_VMS' --aerospike_storage_type=disk --ip_addresses=INTERNAL'
   else
-    cmd="./pkb.py --benchmarks="$benchmark" --cloud="$CLOUD" --machine_type="$FLAVOR" --zones="$ZONE" --metadata="cloud_provider:$SERVICE_PROVIDER" --data_disk_size="$VOLUME_SIZE" --aerospike_storage_type=disk"
+    cmd="./pkb.py --benchmarks="$benchmark" --cloud="$CLOUD" --machine_type="$FLAVOR" --zones="$ZONE" --metadata="cloud_provider:$SERVICE_PROVIDER" --data_disk_size="$VOLUME_SIZE" --aerospike_storage_type=disk --num_vms='$NUM_VMS'" 
   fi
   echo $cmd
 }
