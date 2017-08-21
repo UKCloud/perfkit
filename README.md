@@ -63,6 +63,12 @@ run:
 azure login
 ```
 
+### Google Cloud
+run:
+```
+gcloud init
+```
+
 # Workload-launcher only
 
 ## Pre-reqs

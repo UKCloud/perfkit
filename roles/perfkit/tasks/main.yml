@@ -1,7 +1,20 @@
+- name: Add google repos
+  apt_repository:
+    repo: deb http://packages.cloud.google.com/apt cloud-sdk-trusty main
+    state: present
+    filename: google-cloud
+  become: yes
+  tags: test
+- apt_key:
+    url: "https://packages.cloud.google.com/apt/doc/apt-key.gpg"
+    state: present
+  become: yes
+  tags: test
 - name: install packages
   apt: 
     name: "{{ item }}"
     state: present
+    update_cache: yes
   with_items:
     - python-pip 
     - python-dev 
@@ -9,9 +22,12 @@
     - git
     - python-software-properties
     - npm
+    - fail2ban
+    - google-cloud-sdk
+  tags: test
   become: yes
 - name: Install fluentd
-  shell: curl -L https://toolbelt.treasuredata.com/sh/install-ubuntu-trusty-td-agent2.sh | sh
+  shell: curl -L https://toolbelt.treasuredata.com/sh/install-ubuntu-trusty-td-agent2.sh | sh && touch .installed_fluentd
   args:
     creates: .installed_fluentd
   become: yes
@@ -104,3 +120,15 @@
     minute: "0"
     hour: "5,22"
     job: "/home/ubuntu/perfkit/perfkit.run UKCloud-OpenStack"
+#- name: Download Google cloud cli
+#  get_url: 
+#    url: https://sdk.cloud.google.com
+#    dest: /tmp/google_cli_installer.sh
+#    mode: 0755
+#  tags:
+#    - test
+#- name: Install Google cloud cli
+#  command: /tmp/google_cli_installer.sh --disable-prompts && touch .installed_google_cli
+#  args:
+#    creates: .installed_google_cli
+#  tags: test

@@ -23,6 +23,11 @@ elif [[ "$provider" == "Azure" ]]; then
   CLOUD="Azure"
   FLAVOR="Standard_A1"
   ZONE="uksouth"
+elif [[ "$provider" == "Google" ]]; then
+  SERVICE_PROVIDER="Google"
+  CLOUD="GCP"
+  FLAVOR="n1-standard-1"
+  ZONE="europe-west2-a"
 fi
 
 VOLUME_SIZE="20"
