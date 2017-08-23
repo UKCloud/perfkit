@@ -6,27 +6,27 @@ if [[ "$provider" == "UKCloud-OpenStack" ]]; then
   SERVICE_PROVIDER="UKCloud"
   CLOUD="OpenStack"
   OPENSTACK_NETWORK="perfkit_net"
-  FLAVOR="t1.tiny"
+  FLAVOR="t1.small"
   ZONE="0000c-1"
 elif [[ "$provider" == "AWS-UK" ]]; then
-  SERVICE_PROVIDER="AWS-UK"
+  SERVICE_PROVIDER="AWS"
   CLOUD="AWS"
-  FLAVOR="t2.micro"
+  FLAVOR="t2.small"
   ZONE="eu-west-2"
 elif [[ "$provider" == "AWS-US" ]]; then
-  SERVICE_PROVIDER="AWS-US"
+  SERVICE_PROVIDER="AWS"
   CLOUD="AWS"
-  FLAVOR="t2.micro"
+  FLAVOR="t2.small"
   ZONE="us-east-1"
 elif [[ "$provider" == "Azure" ]]; then
   SERVICE_PROVIDER="Azure"
   CLOUD="Azure"
-  FLAVOR="Standard_A1"
+  FLAVOR="Standard_A1_v2"
   ZONE="uksouth"
 elif [[ "$provider" == "Google" ]]; then
   SERVICE_PROVIDER="Google"
   CLOUD="GCP"
-  FLAVOR="n1-standard-1"
+  FLAVOR='"{ cpus: 1 mem: 2GiB }"'
   ZONE="europe-west2-a"
 fi
 
@@ -68,7 +68,7 @@ DATE=$(date +%d%m%Y)
 # unixbench - all round benchmark
 
 #BENCHMARKS=( aerospike mongodb_ycsb sysbench_oltp fio block_storage_workload silo cluster_boot copy_throughput iperf ping netperf hpcc mesh_network oldisim redis unixbench )
-BENCHMARKS=( copy_throughput )
+BENCHMARKS=( netperf )
 
 PATH=/usr/local/bin:$PATH
 
@@ -106,7 +106,6 @@ function runBenchmarks() {
               $cmd --image="Ubuntu 14.04 amd64" > /opt/logs/$benchmark.log 2>&1
             done
           elif [ $benchmark == "copy_throughput" ]; then
-            echo HIT
             for workload in cp dd scp; do
               cmd="$(baseCmd $benchmark) --openstack_volume_type=$tier --metadata="cloud_provider:$CLOUD,region:$OS_REGION_NAME,storage_type:$tier" --copy_benchmark_mode=$workload --json_path="/opt/results/$SERVICE_PROVIDER.$FLAVOR.$benchmark.$workload.$DATE.results.json""
               echo $cmd --image="Ubuntu 14.04 amd64" >> /opt/logs/perfkit.log
