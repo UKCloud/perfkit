@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import subprocess
 import yaml
 import argparse
 import datetime
@@ -56,27 +57,37 @@ class ukcloudPerfkit():
         for option, value in self.cloud_config['options'].iteritems():
             command = command + (' --' + str(option) + '=' + str(value))
         return command
-    
+
     def run_benchmark_group(self, BENCHMARKGROUP):
     
-        if self.cloud_config['storage_tiers']:
-          print('y')
+        benchmarks = []
         for benchmarkName, sub_tests in self.benchmarks[BENCHMARKGROUP].iteritems():
             if sub_tests:
                 for mode in sub_tests:
                     for test in self.benchmarks[BENCHMARKGROUP][benchmarkName][mode]:
-                        print(self.build_base_command(benchmarkName, mode, test))
+                        benchmarks.append(self.build_base_command(benchmarkName, mode, test))
             else:
-                print(self.build_base_command(benchmarkName))
+                benchmarks.append(self.build_base_command(benchmarkName))
+        return benchmarks
     
-    def run_storage_benchmarks(self):
+    def run_benchmarks(self):
         
-        self.run_benchmark_group('storage_benchmarks')
+        for benchmark in self.benchmarks:
+            for command in self.run_benchmark_group(benchmark):
+                if self.cloud_config['storage_tiers']:
+                    for storage in self.cloud_config['storage_tiers']:
+                        for param, value in storage.iteritems():
+                            command = command + ' --' + param + '=' + value
+                            result = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
+                            print(result.stdout.read())
+                else:
+                    result = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
+                    print(result.stdout.read())
     
 def main():
 
     perfkitRun = ukcloudPerfkit()
-    perfkitRun.run_storage_benchmarks()
+    perfkitRun.run_benchmarks()
 
 
 main()
