@@ -111,5 +111,12 @@ ansible-playbook -i inventories/production/hosts workload-launcher.yml
 To run the benchmarks run:
 
 ```
-./perfkit.run <Azure|AWS-US|AWS-UK|UKCloud-OpenStack>
+usage: perfkit.py [-h] --cloud_provider CLOUD_PROVIDER --config CONFIG
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --cloud_provider CLOUD_PROVIDER
+                        Service provider to benchmark [UKCloud-OpenStack |
+                        UKCloud-vCloud | AWS-UK | AWS-US | Azure | Google]
+  --config CONFIG       Path to perfkit yaml config
 ```
