@@ -4,12 +4,10 @@
     state: present
     filename: google-cloud
   become: yes
-  tags: test
 - apt_key:
     url: "https://packages.cloud.google.com/apt/doc/apt-key.gpg"
     state: present
   become: yes
-  tags: test
 - name: install packages
   apt: 
     name: "{{ item }}"
@@ -24,7 +22,6 @@
     - npm
     - fail2ban
     - google-cloud-sdk
-  tags: test
   become: yes
 - name: Install fluentd
   shell: curl -L https://toolbelt.treasuredata.com/sh/install-ubuntu-trusty-td-agent2.sh | sh && touch .installed_fluentd
@@ -119,4 +116,4 @@
     name: "Run benchmarks"
     minute: "0"
     hour: "5,22"
-    job: "/home/ubuntu/perfkit/perfkit.py OpenStack"
+    job: "/home/ubuntu/perfkit/perfkit.py --config /home/ubuntu/perfkit/perfkit.config --cloud_provider OpenStack"
