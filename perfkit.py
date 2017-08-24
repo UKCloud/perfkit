@@ -50,9 +50,8 @@ class ukcloudPerfkit():
                   + '.' + self.cloud_config['flavor_name'] \
                   + '.' + benchmark + '.'
         if workload:
-            logPath = logPath + workload \
-                    + '.' + self.get_date() + '.'
-        logPath = logPath + 'results.json'
+            logPath = logPath + workload
+        logPath = logPath + '.' + self.get_date() + '.' + 'results.json'
         return logPath
     
     def build_base_command(self, benchmark, mode=None, workload=None, storage_type=None, storage_tier=None):
