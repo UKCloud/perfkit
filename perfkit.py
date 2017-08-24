@@ -4,6 +4,9 @@ import subprocess
 import yaml
 import argparse
 import datetime
+import re
+import os
+import sys
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--cloud_provider", help="Service provider to benchmark \
@@ -29,14 +32,21 @@ class ukcloudPerfkit():
                 print(exc)
 
     def get_date(self):
+
         now = datetime.datetime.now()
         return now.strftime("%Y-%M-%d-%H-%m")
+
+    def write_log(self, data):
+        
+        file = open(self.core_config['log_path'] + 'perfkit-' + self.get_date() + '.log', "w") 
+        file.write(data)
+        file.close() 
 
     def format_results_log(self, benchmark, mode, workload):
 
         logPath = '--json_path=' \
                   + self.core_config['json_path'] \
-                  + self.cloud_config['options']['cloud_provider'] \
+                  + ARGS.cloud_provider \
                   + '.' + self.cloud_config['flavor_name'] \
                   + '.' + benchmark + '.'
         if workload:
@@ -48,7 +58,7 @@ class ukcloudPerfkit():
     def build_base_command(self, benchmark, mode=None, workload=None, storage_type=None, storage_tier=None):
     
         command = './pkb.py ' \
-                  + 'benchmark=' + benchmark \
+                  + '--benchmarks=' + benchmark + ' ' \
                   + self.format_results_log(benchmark, mode, workload)
         if mode:
             command = command + ' --' + mode + '=' + workload 
@@ -70,19 +80,39 @@ class ukcloudPerfkit():
                 benchmarks.append(self.build_base_command(benchmarkName))
         return benchmarks
     
+    def set_env(self):
+
+        env = os.environ.copy()
+        if self.cloud_config['environment']:
+            file = open(self.cloud_config['environment'], 'r')
+            for line in file:
+                if re.match('^export.*', line):
+                    var = re.sub('export ', '', line)
+                    key, val = var.split('=')
+                    val = re.sub('^"', '', val)
+                    val = re.sub('"$', '', val)
+                    val = re.sub("^'", '', val)
+                    val = re.sub("'$", '', val)
+                    env[key] = val.rstrip()
+        return env
+
     def run_benchmarks(self):
         
+        env = self.set_env()
         for benchmark in self.benchmarks:
             for command in self.run_benchmark_group(benchmark):
                 if self.cloud_config['storage_tiers']:
                     for storage in self.cloud_config['storage_tiers']:
                         for param, value in storage.iteritems():
                             command = command + ' --' + param + '=' + value
-                            result = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
+                            print(command)
+                            result = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, cwd=self.core_config['perfkit_path'], env=env)
                             print(result.stdout.read())
+                            self.write_log(result.stdout.read())
                 else:
-                    result = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
-                    print(result.stdout.read())
+                    print(command)
+                    #result = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, cwd=self.core_config['perfkit_path'])
+                    #self.write_log(result.stdout.read())
     
 def main():
 
