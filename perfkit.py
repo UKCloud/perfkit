@@ -104,16 +104,18 @@ class ukcloudPerfkit():
                     for storage in self.cloud_config['storage_tiers']:
                         for param, value in storage.iteritems():
                             metaCommand = command + ' --' + param + '=' + value \
-                                      + ' --metadata="cloud_provider:' + ARGS.cloud_provider \
-                                      + ',region:' + self.cloud_config['options']['zones'] \
-                                      + ',storage_type:' + value + '"'
+                                        + ' --metadata="cloud_provider:' + ARGS.cloud_provider \
+                                        + ',region:' + self.cloud_config['options']['zones'] \
+                                        + ',machine_type:' + self.cloud_config['flavor_name'] \
+                                        + ',storage_type:' + value + '"'
                             print(metaCommand)
                             result = subprocess.Popen(metaCommand, shell=True, stdout=subprocess.PIPE, cwd=self.core_config['perfkit_path'], env=env)
                             print(result.stdout.read())
                             self.write_log(result.stdout.read())
                 else:
                     metaCommand = command + ' --metadata="cloud_provider:' + ARGS.cloud_provider \
-                    + ',region:' + self.cloud_config['options']['zones'] + '"'
+                                  + ',machine_type:' + self.cloud_config['flavor_name'] \
+                                  + ',region:' + self.cloud_config['options']['zones'] + '"'
                     print(metaCommand)
                     result = subprocess.Popen(metaCommand, shell=True, stdout=subprocess.PIPE, cwd=self.core_config['perfkit_path'], env=env)
                     print(result.stdout.read())
