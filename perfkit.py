@@ -111,8 +111,8 @@ class ukcloudPerfkit():
                             self.write_log(result.stdout.read())
                 else:
                     print(command)
-                    #result = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, cwd=self.core_config['perfkit_path'])
-                    #self.write_log(result.stdout.read())
+                    result = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, cwd=self.core_config['perfkit_path'], env=env)
+                    self.write_log(result.stdout.read())
     
 def main():
 
