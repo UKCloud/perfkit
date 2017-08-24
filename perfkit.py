@@ -103,14 +103,20 @@ class ukcloudPerfkit():
                 if self.cloud_config['storage_tiers']:
                     for storage in self.cloud_config['storage_tiers']:
                         for param, value in storage.iteritems():
-                            command = command + ' --' + param + '=' + value
-                            print(command)
-                            result = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, cwd=self.core_config['perfkit_path'], env=env)
+                            metaCommand = command + ' --' + param + '=' + value \
+                                      + ' --metadata="cloud_provider:' + ARGS.cloud_provider \
+                                      + ',region:' + self.cloud_config['options']['zones'] \
+                                      + ',storage_type:' + value + '"'
+                            print(metaCommand)
+                            result = subprocess.Popen(metaCommand, shell=True, stdout=subprocess.PIPE, cwd=self.core_config['perfkit_path'], env=env)
                             print(result.stdout.read())
                             self.write_log(result.stdout.read())
                 else:
-                    print(command)
-                    result = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, cwd=self.core_config['perfkit_path'], env=env)
+                    metaCommand = command + ' --metadata="cloud_provider:' + ARGS.cloud_provider \
+                    + ',region:' + self.cloud_config['options']['zones'] + '"'
+                    print(metaCommand)
+                    result = subprocess.Popen(metaCommand, shell=True, stdout=subprocess.PIPE, cwd=self.core_config['perfkit_path'], env=env)
+                    print(result.stdout.read())
                     self.write_log(result.stdout.read())
     
 def main():
