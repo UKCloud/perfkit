@@ -48,9 +48,9 @@ class ukcloudPerfkit():
                   + self.core_config['json_path'] \
                   + ARGS.cloud_provider \
                   + '.' + self.cloud_config['flavor_name'] \
-                  + '.' + benchmark + '.'
+                  + '.' + benchmark
         if workload:
-            logPath = logPath + workload
+            logPath = logPath + '.' + workload
         logPath = logPath + '.' + self.get_date() + '.' + 'results.json'
         return logPath
     
