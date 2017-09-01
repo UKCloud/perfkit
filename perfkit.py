@@ -34,7 +34,7 @@ class ukcloudPerfkit():
     def get_date(self):
 
         now = datetime.datetime.now()
-        return now.strftime("%Y-%M-%d-%H-%m")
+        return now.strftime("%Y-%m-%d-%H-%M")
 
     def write_log(self, data):
         
