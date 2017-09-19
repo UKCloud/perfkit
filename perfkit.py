@@ -38,7 +38,7 @@ class ukcloudPerfkit():
 
     def write_log(self, data):
         
-        file = open(self.core_config['log_path'] + 'perfkit-' + self.get_date() + '.log', "w") 
+        file = open(self.core_config['log_path'] + 'perfkit-' + self.get_date() + '.log', "w+") 
         file.write(data)
         file.close() 
 
