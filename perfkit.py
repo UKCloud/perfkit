@@ -122,9 +122,9 @@ class ukcloudPerfkit():
                     self.write_log(result.stdout.read())
     
 def main():
-
     perfkitRun = ukcloudPerfkit()
+    print ("Started the run at : "+perfkitRun.get_date())
     perfkitRun.run_benchmarks()
-
+    print ("Finished the run at : "+perfkitRun.get_date())
 
 main()

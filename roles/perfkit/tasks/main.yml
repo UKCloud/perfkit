@@ -116,4 +116,4 @@
     name: "Run benchmarks"
     minute: "0"
     hour: "5,22"
-    job: "/usr/bin/python /home/ubuntu/perfkit/perfkit.py --config /home/ubuntu/perfkit/perfkit.config --cloud_provider OpenStack"
+    job: "/usr/bin/python /home/ubuntu/perfkit/perfkit.py --config /home/ubuntu/perfkit/perfkit.config --cloud_provider OpenStack | tee -a /home/ubuntu/perfkit_run_`date '+%d_%m_%Y_%H%M%S'`.log"
