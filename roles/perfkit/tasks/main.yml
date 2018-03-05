@@ -117,3 +117,8 @@
     minute: "0"
     hour: "5,22"
     job: "/usr/bin/python /home/ubuntu/perfkit/perfkit.py --config /home/ubuntu/perfkit/perfkit.config --cloud_provider OpenStack | tee -a /home/ubuntu/perfkit_run_`date '+%d_%m_%Y_%H%M%S'`.log"
+- name: Setup Path for openstack tools for Cron
+  cron:
+    name: PATH
+    env: yes
+    value: /usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin:/usr/local/bin
